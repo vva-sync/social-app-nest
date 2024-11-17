@@ -1,11 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({})
   first_name: string;
 
   @Column()
@@ -17,7 +22,7 @@ class User {
   @Column()
   password: string;
 
-  @Column()
+  @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 }
 
