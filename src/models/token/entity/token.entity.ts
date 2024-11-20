@@ -6,27 +6,15 @@ import {
 } from 'typeorm';
 
 @Entity()
-class User {
+class Token {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  username: string;
-
-  @Column({})
-  first_name: string;
-
-  @Column()
-  last_name: string;
-
-  @Column()
-  email: string;
-
-  @Column()
-  password: string;
+  token: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 }
 
-export default User;
+export default Token;

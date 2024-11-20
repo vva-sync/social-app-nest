@@ -5,6 +5,9 @@ export class CreateUserDto {
   email: string;
 
   @IsNotEmpty()
+  username: string;
+
+  @IsNotEmpty()
   password: string;
 
   @IsNotEmpty()
@@ -14,4 +17,12 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   last_name: string;
+}
+
+export class LoginUserDto {
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  password: string;
 }

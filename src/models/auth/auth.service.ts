@@ -1,14 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto } from '../user/dto/user.dto';
+import { CreateUserDto, LoginUserDto } from '../user/dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
+import { TokenService } from '../token/token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private configService: ConfigService,
     private userService: UserService,
+    private tokenService: TokenService,
   ) {}
 
   async signup(user: CreateUserDto) {
@@ -26,11 +28,41 @@ export class AuthService {
 
     return {
       message: 'User created successfully',
+      username: user.username,
     };
   }
 
-  login() {
-    return 'login';
+  async login(loginUserDto: LoginUserDto) {
+    const user = await this.userService.findUserByEmail(loginUserDto.email);
+
+    if (!user) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
+
+    const isPasswordMatch = this.checkPassword(
+      loginUserDto.password,
+      user.password,
+    );
+
+    if (!isPasswordMatch) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
+
+    const accessToken = this.tokenService.generateAccessToken({
+      username: user.username,
+    });
+
+    const refreshToken = this.tokenService.generateRefreshToken({
+      username: user.username,
+    });
+
+    await this.tokenService.saveRefreshToken(refreshToken);
+
+    return {
+      message: 'Login successful',
+      accessToken,
+      refreshToken,
+    };
   }
 
   logout() {
@@ -44,5 +76,9 @@ export class AuthService {
 
     const salt = bcrypt.genSaltSync(saltRounds);
     return bcrypt.hashSync(password, salt);
+  }
+
+  private checkPassword(password: string, hashedPassword: string) {
+    return bcrypt.compareSync(password, hashedPassword);
   }
 }
