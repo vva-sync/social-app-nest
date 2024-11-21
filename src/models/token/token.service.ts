@@ -17,6 +17,10 @@ export class TokenService {
     await this.tokenRepository.insert({ token });
   }
 
+  verifyAccessToken(token: string) {
+    return jwt.verify(token, this.configService.get('auth.accessTokenSecret'));
+  }
+
   generateAccessToken(body: { username: string }) {
     return jwt.sign(body, this.configService.get('auth.accessTokenSecret'), {
       expiresIn: this.configService.get('auth.accessTokenExpiresIn'),
