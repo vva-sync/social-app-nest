@@ -26,3 +26,8 @@ export class LoginUserDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class LogoutUserDto {
+  @IsNotEmpty()
+  refreshToken: string;
+}

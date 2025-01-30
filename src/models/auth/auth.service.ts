@@ -8,9 +8,9 @@ import { TokenService } from '../token/token.service';
 @Injectable()
 export class AuthService {
   constructor(
-    private configService: ConfigService,
-    private userService: UserService,
-    private tokenService: TokenService,
+    private readonly configService: ConfigService,
+    private readonly userService: UserService,
+    private readonly tokenService: TokenService,
   ) {}
 
   async signup(user: CreateUserDto) {
@@ -33,6 +33,8 @@ export class AuthService {
   }
 
   async login(loginUserDto: LoginUserDto) {
+    console.log('hereeee');
+
     const user = await this.userService.findUserByEmail(loginUserDto.email);
 
     if (!user) {
@@ -56,7 +58,7 @@ export class AuthService {
       username: user.username,
     });
 
-    await this.tokenService.saveRefreshToken(refreshToken);
+    await this.tokenService.saveRefreshToken(refreshToken, user);
 
     return {
       message: 'Login successful',
@@ -65,8 +67,23 @@ export class AuthService {
     };
   }
 
-  logout() {
-    return 'logout';
+  async logout(refreshToken: string) {
+    const result = await this.tokenService.deleteRefreshToken(refreshToken);
+
+    if (result.affected === 0) {
+      throw new HttpException(
+        'Token not found or already invalidated',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      message: 'Logout successful',
+    };
+  }
+
+  refresh() {
+    return 'refresh';
   }
 
   private hashPassword(password: string) {

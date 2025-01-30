@@ -8,7 +8,7 @@ import { TokenService } from 'src/models/token/token.service';
 
 @Injectable()
 export class Restricted implements NestMiddleware {
-  constructor(private tokenService: TokenService) {}
+  constructor(private readonly tokenService: TokenService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
     try {

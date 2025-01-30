@@ -4,17 +4,22 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import Token from './entity/token.entity';
+import User from '../user/entities/user.entity';
 
 @Injectable()
 export class TokenService {
   constructor(
-    private configService: ConfigService,
+    private readonly configService: ConfigService,
     @InjectRepository(Token)
-    private tokenRepository: Repository<Token>,
+    private readonly tokenRepository: Repository<Token>,
   ) {}
 
-  async saveRefreshToken(token: string) {
-    await this.tokenRepository.insert({ token });
+  async saveRefreshToken(token: string, user: User) {
+    await this.tokenRepository.insert({ token, user });
+  }
+
+  async deleteRefreshToken(refreshToken: string) {
+    return await this.tokenRepository.delete({ token: refreshToken });
   }
 
   verifyAccessToken(token: string) {

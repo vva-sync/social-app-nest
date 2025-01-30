@@ -1,7 +1,9 @@
+import Token from '../../token/entity/token.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -27,6 +29,9 @@ class User {
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
+
+  @OneToOne(() => Token, (token) => token.user)
+  token: Token;
 }
 
 export default User;
