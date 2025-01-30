@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import Token from '../../token/entity/token.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 class User {
@@ -6,6 +13,9 @@ class User {
   id: number;
 
   @Column()
+  username: string;
+
+  @Column({})
   first_name: string;
 
   @Column()
@@ -17,8 +27,11 @@ class User {
   @Column()
   password: string;
 
-  @Column()
+  @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
+
+  @OneToOne(() => Token, (token) => token.user)
+  token: Token;
 }
 
 export default User;
