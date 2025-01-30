@@ -66,11 +66,11 @@ export class AuthService {
   }
 
   async logout(refreshToken: string) {
-    const result = await this.tokenService.deleteRefreshToken(refreshToken);
-
-    if (result.affected === 0) {
+    try {
+      await this.tokenService.deleteRefreshToken(refreshToken);
+    } catch {
       throw new HttpException(
-        'Token not found or already invalidated',
+        'Token was already invalidated',
         HttpStatus.NOT_FOUND,
       );
     }
@@ -80,8 +80,8 @@ export class AuthService {
     };
   }
 
-  refresh() {
-    return 'refresh';
+  async refreshAccessToken(refreshToken: string) {
+    return this.tokenService.refreshAccessToken(refreshToken);
   }
 
   private hashPassword(password: string) {

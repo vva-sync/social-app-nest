@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import {
   CreateUserDto,
   LoginUserDto,
-  LogoutUserDto,
+  RefreshTokenDto,
 } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
 
@@ -20,12 +20,12 @@ export class AuthController {
   }
 
   @Post('logout')
-  logout(@Body() body: LogoutUserDto) {
+  logout(@Body() body: RefreshTokenDto) {
     return this.authService.logout(body.refreshToken);
   }
 
-  @Post('refresh')
-  refresh() {
-    return this.authService.refresh();
+  @Post('token')
+  refreshAccessToken(@Body() body: RefreshTokenDto) {
+    return this.authService.refreshAccessToken(body.refreshToken);
   }
 }
