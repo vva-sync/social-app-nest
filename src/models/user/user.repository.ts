@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { BaseRepository } from 'src/shared/base-repository';
+import { BaseRepository } from '../../shared/base-repository';
 import { DataSource } from 'typeorm';
 import { CreateUserDto } from './dto/user.dto';
 import User from './entities/user.entity';

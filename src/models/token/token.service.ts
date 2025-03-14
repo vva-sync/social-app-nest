@@ -1,16 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as jwt from 'jsonwebtoken';
 import User from '../user/entities/user.entity';
-import Token from './entity/token.entity';
 import { TokenRepository } from './token.repository';
 
 @Injectable()
 export class TokenService {
   constructor(
     private readonly configService: ConfigService,
-    @InjectRepository(Token)
     private readonly tokenRepository: TokenRepository,
   ) {}
 

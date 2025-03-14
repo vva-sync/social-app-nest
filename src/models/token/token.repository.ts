@@ -1,10 +1,10 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { BaseRepository } from 'src/shared/base-repository';
 import { DataSource } from 'typeorm';
 import Token from './entity/token.entity';
 import User from '../user/entities/user.entity';
+import { BaseRepository } from '../../shared/base-repository';
 
 @Injectable({ scope: Scope.REQUEST })
 export class TokenRepository extends BaseRepository {
