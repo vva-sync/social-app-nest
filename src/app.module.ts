@@ -10,6 +10,7 @@ import { TokenModule } from './models/token/token.module';
 import { TokenRepository } from './models/token/token.repository';
 import { TokenService } from './models/token/token.service';
 import { UserModule } from './models/user/user.module';
+import { PostsModule } from './models/posts/posts.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserModule } from './models/user/user.module';
     AuthModule,
     TokenModule,
     TypeOrmModule.forFeature([Token]),
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService, TokenService, TokenRepository],
