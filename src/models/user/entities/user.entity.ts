@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import Token from '../../token/entity/token.entity';
-import { Post } from '../../posts/entity/post.entity';
+import { Post } from '../../post/entity/post.entity';
 
 @Entity()
 class User {

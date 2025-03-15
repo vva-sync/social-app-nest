@@ -7,7 +7,7 @@ import {
 import { AuthService } from './auth.service';
 import { TokenService } from '../token/token.service';
 import { TransactionInterceptor } from 'src/shared/transaction.interceptors';
-import { Public } from '../../../src/decorators/public.decorator';
+import { Public } from 'src/decorators/public.decorator';
 
 @Public()
 @Controller('auth')
