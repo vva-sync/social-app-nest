@@ -1,11 +1,13 @@
-import Token from '../../token/entity/token.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import Token from '../../token/entity/token.entity';
+import { Post } from '../../posts/entity/post.entity';
 
 @Entity()
 class User {
@@ -32,6 +34,12 @@ class User {
 
   @OneToOne(() => Token, (token) => token.user)
   token: Token;
+
+  @OneToMany(() => Post, (post) => post.creator)
+  created_posts: Post[];
+
+  @OneToMany(() => Post, (post) => post.owner)
+  own_posts: Post[];
 }
 
 export default User;
