@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './models/auth/auth.module';
 import Token from './models/token/entity/token.entity';
 import { TokenModule } from './models/token/token.module';
+import { TokenRepository } from './models/token/token.repository';
 import { TokenService } from './models/token/token.service';
 import { UserModule } from './models/user/user.module';
 
@@ -20,6 +21,6 @@ import { UserModule } from './models/user/user.module';
     TypeOrmModule.forFeature([Token]),
   ],
   controllers: [AppController],
-  providers: [AppService, TokenService],
+  providers: [AppService, TokenService, TokenRepository],
 })
 export class AppModule {}
