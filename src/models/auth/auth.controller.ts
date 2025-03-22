@@ -6,10 +6,14 @@ import {
 } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
 import { TransactionInterceptor } from 'src/shared/transaction.interceptors';
+import { TokenService } from '../token/token.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly tokenService: TokenService,
+  ) {}
 
   @UseInterceptors(TransactionInterceptor)
   @Post('signup')
@@ -29,6 +33,6 @@ export class AuthController {
 
   @Post('token')
   refreshAccessToken(@Body() body: RefreshTokenDto) {
-    return this.authService.refreshAccessToken(body.refreshToken);
+    return this.tokenService.refreshAccessToken(body.refreshToken);
   }
 }
