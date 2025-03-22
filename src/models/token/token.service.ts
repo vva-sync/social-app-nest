@@ -1,31 +1,26 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as jwt from 'jsonwebtoken';
-import { Repository } from 'typeorm';
 import User from '../user/entities/user.entity';
-import Token from './entity/token.entity';
+import { TokenRepository } from './token.repository';
 
 @Injectable()
 export class TokenService {
   constructor(
     private readonly configService: ConfigService,
-    @InjectRepository(Token)
-    private readonly tokenRepository: Repository<Token>,
+    private readonly tokenRepository: TokenRepository,
   ) {}
 
   async saveRefreshToken(token: string, user: User) {
-    await this.tokenRepository.insert({ token, user });
+    await this.tokenRepository.saveRefreshToken(token, user);
   }
 
   async deleteRefreshToken(refreshToken: string) {
-    return await this.tokenRepository.delete({ token: refreshToken });
+    return await this.tokenRepository.deleteRefreshToken(refreshToken);
   }
 
   async findRefreshToken(refreshToken: string) {
-    return await this.tokenRepository.findOne({
-      where: { token: refreshToken },
-    });
+    return await this.tokenRepository.findRefreshToken(refreshToken);
   }
 
   verifyAccessToken(token: string) {

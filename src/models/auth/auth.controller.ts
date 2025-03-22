@@ -1,10 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
 import {
   CreateUserDto,
   LoginUserDto,
   RefreshTokenDto,
 } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
+import { TransactionInterceptor } from 'src/shared/transaction.interceptors';
 import { TokenService } from '../token/token.service';
 
 @Controller('auth')
@@ -14,10 +15,12 @@ export class AuthController {
     private readonly tokenService: TokenService,
   ) {}
 
+  @UseInterceptors(TransactionInterceptor)
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signup(createUserDto);
   }
+  @UseInterceptors(TransactionInterceptor)
   @Post('login')
   login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
