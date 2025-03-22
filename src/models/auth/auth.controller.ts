@@ -1,13 +1,13 @@
 import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
+import { Public } from 'src/decorators/public.decorator';
+import { TransactionInterceptor } from 'src/shared/transaction.interceptors';
+import { TokenService } from '../token/token.service';
 import {
   CreateUserDto,
   LoginUserDto,
   RefreshTokenDto,
 } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
-import { Public } from '../../../src/decorators/public.decorator';
-import { TransactionInterceptor } from 'src/shared/transaction.interceptors';
-import { TokenService } from '../token/token.service';
 
 @Public()
 @Controller('auth')
@@ -22,6 +22,7 @@ export class AuthController {
   signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signup(createUserDto);
   }
+
   @UseInterceptors(TransactionInterceptor)
   @Post('login')
   login(@Body() loginUserDto: LoginUserDto) {

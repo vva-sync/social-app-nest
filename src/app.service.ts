@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { INestApplication, Injectable, ValidationPipe } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  setBaseConfig(app: INestApplication) {
+    app.setGlobalPrefix('api/v1/social');
+    app.useGlobalPipes(new ValidationPipe());
   }
 }

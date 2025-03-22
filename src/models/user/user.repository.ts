@@ -19,4 +19,8 @@ export class UserRepository extends BaseRepository {
   async findUserByEmail(email: string) {
     return await this.getRepository(User).findOneBy({ email });
   }
+
+  async findUserById(id: number) {
+    return await this.getRepository(User).findOneBy({ id });
+  }
 }
