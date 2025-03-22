@@ -1,21 +1,35 @@
-import { Controller, Get, Post } from '@nestjs/common';
-
-@Controller('post')
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { PostService } from './post.service';
+@UseGuards(AuthGuard)
+@Controller('/:userId/posts')
 export class PostController {
-  constructor() {}
+  constructor(private readonly postService: PostService) {}
 
   @Get()
-  getPosts() {
-    return 'posts';
+  async getPosts(@Param('userId', ParseIntPipe) userId: number) {
+    return await this.postService.getPosts(userId);
   }
 
-  @Get(':id')
-  getPostById() {
-    return 'post';
-  }
-
-  @Post()
-  createPost() {
-    return 'post';
+  @Post('/create')
+  async createPost(
+    @Body()
+    dto: {
+      ownerId: number;
+      creatorId: number;
+      title: string;
+      content: string;
+    },
+    @Param('userId') userId: number,
+  ) {
+    return await this.postService.createPost({ ownerId: userId, ...dto });
   }
 }

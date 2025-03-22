@@ -22,6 +22,7 @@ export class AuthController {
   signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signup(createUserDto);
   }
+
   @UseInterceptors(TransactionInterceptor)
   @Post('login')
   login(@Body() loginUserDto: LoginUserDto) {

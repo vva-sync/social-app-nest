@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -9,9 +10,10 @@ import { Observable } from 'rxjs';
 import { IS_PUBLIC_KEY } from 'src/decorators/public.decorator';
 import { TokenService } from 'src/models/token/token.service';
 
+@Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private readonly tokenService: TokenService,
+    private tokenService: TokenService,
     private reflector: Reflector,
   ) {}
 
@@ -40,7 +42,9 @@ export class AuthGuard implements CanActivate {
       request['user'] = user;
 
       return true;
-    } catch {
+    } catch (err) {
+      console.error(err);
+
       throw new UnauthorizedException({ message: 'Unauthorized' });
     }
   }
