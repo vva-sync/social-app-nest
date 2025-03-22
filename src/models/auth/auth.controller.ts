@@ -5,9 +5,11 @@ import {
   RefreshTokenDto,
 } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
+import { Public } from '../../../src/decorators/public.decorator';
 import { TransactionInterceptor } from 'src/shared/transaction.interceptors';
 import { TokenService } from '../token/token.service';
 
+@Public()
 @Controller('auth')
 export class AuthController {
   constructor(
