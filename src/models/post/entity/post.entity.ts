@@ -4,8 +4,10 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { PostPhoto } from './post-photo.entity';
 
 @Entity('post')
 export class Post {
@@ -26,4 +28,7 @@ export class Post {
 
   @ManyToOne(() => User, (user) => user.own_posts)
   owner: User;
+
+  @OneToMany(() => PostPhoto, (postPhoto) => postPhoto.post)
+  photos: PostPhoto[];
 }
