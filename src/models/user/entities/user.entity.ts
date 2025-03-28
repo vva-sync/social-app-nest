@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import Token from '../../token/entity/token.entity';
 import { Post } from '../../post/entity/post.entity';
+import { UserPhoto } from './user-photo.entity';
 
 @Entity()
 class User {
@@ -40,6 +41,9 @@ class User {
 
   @OneToMany(() => Post, (post) => post.owner)
   own_posts: Post[];
+
+  @OneToMany(() => UserPhoto, (userPhoto) => userPhoto.user)
+  photos: UserPhoto[];
 }
 
 export default User;

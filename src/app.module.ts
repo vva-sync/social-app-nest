@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { MyConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './models/auth/auth.module';
+import { AwsModule } from './models/aws/aws.module';
 import { PostsModule } from './models/post/post.module';
 import Token from './models/token/entity/token.entity';
 import { TokenModule } from './models/token/token.module';
@@ -22,17 +23,9 @@ import { UserModule } from './models/user/user.module';
     TokenModule,
     TypeOrmModule.forFeature([Token]),
     PostsModule,
+    AwsModule,
   ],
-  providers: [
-    AppService,
-    TokenService,
-    TokenRepository,
-    Reflector,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: AuthGuard,
-    // },
-  ],
+  providers: [AppService, TokenService, TokenRepository, Reflector],
   controllers: [AppController],
 })
 export class AppModule {}
