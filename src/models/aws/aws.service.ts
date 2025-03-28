@@ -27,4 +27,16 @@ export class AwsService {
     };
     return this.s3.upload(params).promise();
   }
+
+  async uploadFiles(files: Express.Multer.File[]) {
+    const params = files.map((file) => ({
+      Bucket: this.configService.get<string>('s3.bucketName'),
+      Key: `${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`,
+      Body: file.buffer,
+    }));
+
+    return await Promise.all(
+      params.map((param) => this.s3.upload(param).promise()),
+    );
+  }
 }
