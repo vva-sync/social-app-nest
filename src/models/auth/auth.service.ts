@@ -50,16 +50,26 @@ export class AuthService {
 
     const accessToken = this.tokenService.generateAccessToken({
       username: user.username,
+      id: user.id,
     });
+
+    const isRefreshTokenExist = await this.tokenService.findTokenByUser(user);
+
+    if (isRefreshTokenExist) {
+      await this.tokenService.deleteRefreshToken(isRefreshTokenExist.token);
+    }
 
     const refreshToken = this.tokenService.generateRefreshToken({
       username: user.username,
+      id: user.id,
     });
 
     await this.tokenService.saveRefreshToken(refreshToken, user);
 
     return {
       message: 'Login successful',
+      id: user.id,
+      username: user.username,
       accessToken,
       refreshToken,
     };

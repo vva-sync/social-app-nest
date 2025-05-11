@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -11,8 +12,9 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { CreatePostRequestDto } from './dto/post.dto';
 import { PostService } from './post.service';
-import { ParseToJsonPipe } from 'src/pipes/ParseToJsonPipe';
+
 @UseGuards(AuthGuard)
 @Controller('/:userId/posts')
 export class PostController {
@@ -23,7 +25,7 @@ export class PostController {
     return await this.postService.getPosts(userId);
   }
 
-  @Post('/create')
+  @Post('/')
   @UseInterceptors(
     FilesInterceptor('file', 10, {
       limits: {
@@ -34,17 +36,19 @@ export class PostController {
   async createPost(
     @Param('userId', ParseIntPipe) userId: number,
     @UploadedFiles() files: Express.Multer.File[],
-    @Body(new ParseToJsonPipe())
-    body: {
-      creatorId: number;
-      title: string;
-      content: string;
-    },
+    @Body()
+    body: CreatePostRequestDto,
   ) {
     return await this.postService.createPost({
-      ownerId: userId,
       ...body,
       files,
+      owner: userId,
+      creator: Number(body.creator),
     });
+  }
+
+  @Delete('/:postId')
+  async deletePost(@Param('postId', ParseIntPipe) postId: number) {
+    return await this.postService.deletePost(postId);
   }
 }

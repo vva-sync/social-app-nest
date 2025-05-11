@@ -15,6 +15,11 @@ export class PostPhoto {
   @Column({ default: 0 })
   display_order: number;
 
+  @Column({
+    nullable: true,
+  })
+  aws_key: string;
+
   @ManyToOne(() => Post, (post) => post.photos)
   post: Post;
 }

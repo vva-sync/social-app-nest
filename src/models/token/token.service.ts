@@ -23,6 +23,10 @@ export class TokenService {
     return await this.tokenRepository.findRefreshToken(refreshToken);
   }
 
+  async findTokenByUser(user: User) {
+    return await this.tokenRepository.findRefreshTokenByUser(user);
+  }
+
   verifyAccessToken(token: string) {
     return jwt.verify(token, this.configService.get('auth.accessTokenSecret'));
   }
@@ -31,16 +35,16 @@ export class TokenService {
     return jwt.verify(
       token,
       this.configService.get('auth.refreshTokenSecret'),
-    ) as { username: string };
+    ) as { username: string; id: number };
   }
 
-  generateAccessToken(body: { username: string }) {
+  generateAccessToken(body: { username: string; id: number }) {
     return jwt.sign(body, this.configService.get('auth.accessTokenSecret'), {
       expiresIn: this.configService.get('auth.accessTokenExpiresIn'),
     });
   }
 
-  generateRefreshToken(body: { username: string }) {
+  generateRefreshToken(body: { username: string; id: number }) {
     return jwt.sign(body, this.configService.get('auth.refreshTokenSecret'), {
       expiresIn: this.configService.get('auth.refreshTokenExpiresIn'),
     });
@@ -53,7 +57,7 @@ export class TokenService {
       throw new UnauthorizedException({ message: 'Invalid token' });
     }
 
-    let decoded: { username: string };
+    let decoded: { username: string; id: number };
 
     try {
       decoded = this.verifyRefreshToken(refreshToken);
@@ -63,6 +67,7 @@ export class TokenService {
 
     const accessToken = this.generateAccessToken({
       username: decoded.username,
+      id: decoded.id,
     });
 
     return { accessToken };
