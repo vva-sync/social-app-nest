@@ -25,4 +25,10 @@ export class TokenRepository extends BaseRepository {
       where: { token: refreshToken },
     });
   }
+
+  async findRefreshTokenByUser(user: User) {
+    return await this.getRepository(Token).findOne({
+      where: { user: { id: user.id } },
+    });
+  }
 }

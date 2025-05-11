@@ -1,25 +1,23 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
-import User from 'src/models/user/entities/user.entity';
-
-export class CreatePostDto {
-  title: string;
-  content: string;
-  owner: User;
-  creator: User;
-}
+import {
+  IsNotEmpty,
+  IsNumberString,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreatePostRequestDto {
-  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
   title: string;
 
   @IsNotEmpty()
+  @IsString()
   content: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  ownerId: number;
+  @IsNumberString()
+  creator: string;
 
-  @IsNotEmpty()
-  @IsNumber()
-  creatorId: number;
+  @IsOptional()
+  files: Express.Multer.File[];
 }

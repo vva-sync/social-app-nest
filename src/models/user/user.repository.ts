@@ -30,7 +30,7 @@ export class UserRepository extends BaseRepository {
     return await this.getRepository(UserPhoto).save({
       name: upload.Key,
       url: upload.Location,
-      isMain: false,
+      isMain: true,
       user,
     });
   }
