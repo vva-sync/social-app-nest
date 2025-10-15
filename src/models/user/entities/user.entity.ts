@@ -9,6 +9,7 @@ import {
 import Token from '../../token/entity/token.entity';
 import { Post } from '../../post/entity/post.entity';
 import { UserPhoto } from './user-photo.entity';
+import { UserConfirmation } from './user-confirmation.entity';
 
 @Entity()
 class User {
@@ -35,6 +36,9 @@ class User {
 
   @OneToOne(() => Token, (token) => token.user)
   token: Token;
+
+  @OneToOne(() => UserConfirmation, (userConfirmation) => userConfirmation.user)
+  confirmation: UserConfirmation;
 
   @OneToMany(() => Post, (post) => post.creator)
   created_posts: Post[];

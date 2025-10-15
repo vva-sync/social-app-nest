@@ -49,9 +49,13 @@ export class AwsService {
       Body: file.buffer,
     }));
 
-    return await Promise.all(
-      params.map((param) => this.s3.upload(param).promise()),
-    );
+    try {
+      return await Promise.all(
+        params.map((param) => this.s3.upload(param).promise()),
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async tagDeletedImage(key: string) {

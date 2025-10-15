@@ -1,9 +1,11 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto, LoginUserDto } from '../user/dto/user.dto';
 import * as bcrypt from 'bcrypt';
-import { ConfigService } from '@nestjs/config';
-import { UserService } from '../user/user.service';
+import { uuid } from 'uuidv4';
 import { TokenService } from '../token/token.service';
+import { CreateUserDto, LoginUserDto } from '../user/dto/user.dto';
+import { UserService } from '../user/user.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -11,6 +13,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly tokenService: TokenService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async signup(user: CreateUserDto) {
@@ -23,8 +26,16 @@ export class AuthService {
     }
 
     const hashedPassword = this.hashPassword(password);
+    const activationLink = uuid();
 
-    await this.userService.createUser({ ...user, password: hashedPassword });
+    const newUser = await this.userService.createUser({
+      ...user,
+      password: hashedPassword,
+    });
+
+    await this.userService.saveUserActivationLink(newUser, activationLink);
+
+    await this.sendConfirmationEmail(user.email, activationLink);
 
     return {
       message: 'User created successfully',
@@ -46,6 +57,12 @@ export class AuthService {
 
     if (!isPasswordMatch) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
+
+    const isActivated = await this.userService.isActivatedUser(user.id);
+
+    if (!isActivated) {
+      throw new HttpException('User is not activated', HttpStatus.UNAUTHORIZED);
     }
 
     const accessToken = this.tokenService.generateAccessToken({
@@ -88,9 +105,7 @@ export class AuthService {
   }
 
   private hashPassword(password: string) {
-    const saltRounds = Number(
-      this.configService.get<string>('auth.saltRounds'),
-    );
+    const saltRounds = Number(this.configService.get('PASSWORD_SALT_ROUNDS'));
 
     const salt = bcrypt.genSaltSync(saltRounds);
     return bcrypt.hashSync(password, salt);
@@ -98,5 +113,16 @@ export class AuthService {
 
   private checkPassword(password: string, hashedPassword: string) {
     return bcrypt.compareSync(password, hashedPassword);
+  }
+
+  private async sendConfirmationEmail(email: string, activationLink: string) {
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Confirm your email',
+      html: `
+        <h1>Confirm your email</h1>
+        <p>Click <a href="http://${this.configService.get('SERVER_HOST')}:${this.configService.get('SERVER_PORT')}/api/v1/social/auth/confirm/${activationLink}">here</a> to confirm your email.</p>
+        `,
+    });
   }
 }

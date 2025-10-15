@@ -1,12 +1,13 @@
 import { Request } from 'express';
 import { BaseRepository } from '../../shared/base-repository';
-import { DataSource } from 'typeorm';
+import { DataSource, ILike } from 'typeorm';
 import { CreateUserDto } from './dto/user.dto';
 import User from './entities/user.entity';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { UserPhoto } from './entities/user-photo.entity';
 import { ManagedUpload } from 'aws-sdk/clients/s3';
+import { UserConfirmation } from './entities/user-confirmation.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserRepository extends BaseRepository {
@@ -26,6 +27,27 @@ export class UserRepository extends BaseRepository {
     return await this.getRepository(User).findOneBy({ id });
   }
 
+  async saveUserActivationLink(user: User, activationLink: string) {
+    return await this.getRepository(UserConfirmation).save({
+      user,
+      activationLink,
+      isActivated: false,
+    });
+  }
+
+  async isActivatedUser(userId: number) {
+    return await this.getRepository(UserConfirmation).findOne({
+      where: { user: { id: userId } },
+    });
+  }
+
+  async findUserByActivationLink(link: string) {
+    return await this.getRepository(UserConfirmation).findOne({
+      where: { activationLink: link },
+      relations: ['user'],
+    });
+  }
+
   async saveUserPhoto(user: User, upload: ManagedUpload.SendData) {
     return await this.getRepository(UserPhoto).save({
       name: upload.Key,
@@ -37,5 +59,27 @@ export class UserRepository extends BaseRepository {
 
   async findUserPhotoByName(name: string) {
     return await this.getRepository(UserPhoto).findOneBy({ name });
+  }
+  async activate(userId: number) {
+    return await this.getRepository(UserConfirmation).update(
+      {
+        user: {
+          id: userId,
+        },
+      },
+      {
+        isActivated: true,
+      },
+    );
+  }
+
+  async getUsers(search: string, offset: number, limit: number) {
+    return await this.getRepository(User).find({
+      where: {
+        username: ILike(`%${search}%`),
+      },
+      skip: offset,
+      take: limit,
+    });
   }
 }
