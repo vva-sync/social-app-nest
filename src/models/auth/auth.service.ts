@@ -1,11 +1,11 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { uuid } from 'uuidv4';
 import { TokenService } from '../token/token.service';
 import { CreateUserDto, LoginUserDto } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +14,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly tokenService: TokenService,
     private readonly mailerService: MailerService,
-  ) {}
+  ) { }
 
   async signup(user: CreateUserDto) {
     const { password } = user;
@@ -45,6 +45,8 @@ export class AuthService {
 
   async login(loginUserDto: LoginUserDto) {
     const user = await this.userService.findUserByEmail(loginUserDto.email);
+    const userPassword = await this.userService.findUserPassword(user.id);
+
 
     if (!user) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
@@ -52,7 +54,7 @@ export class AuthService {
 
     const isPasswordMatch = this.checkPassword(
       loginUserDto.password,
-      user.password,
+      userPassword,
     );
 
     if (!isPasswordMatch) {

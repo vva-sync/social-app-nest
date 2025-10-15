@@ -1,18 +1,22 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AwsService } from '../aws/aws.service';
 import { CreateUserDto } from './dto/user.dto';
-import { UserRepository } from './user.repository';
 import User from './entities/user.entity';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly awsService: AwsService,
-  ) {}
+  ) { }
 
   async findUserByEmail(email: string) {
     return await this.userRepository.findUserByEmail(email);
+  }
+
+  async findUserPassword(id: number) {
+    return await this.userRepository.findUserPassword(id);
   }
 
   async findUserById(id: number) {

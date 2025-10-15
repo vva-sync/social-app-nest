@@ -23,22 +23,5 @@ import serverConfig from './server.config';
     }),
   ],
 })
-export class MyConfigModule {}
+export class MyConfigModule { }
 
-// @Module({})
-// export class ConfigModule {
-//   static register(options: { folderPath: string }): DynamicModule {
-//     return {
-//       module: ConfigModule,
-//       global: true,
-//       providers: [
-//         {
-//           provide: 'CONFIG_OPTIONS',
-//           useValue: options,
-//         },
-//         ConfigService,
-//       ],
-//       exports: [ConfigService],
-//     };
-//   }
-// }

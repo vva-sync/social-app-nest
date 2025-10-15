@@ -6,10 +6,10 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import Token from '../../token/entity/token.entity';
 import { Post } from '../../post/entity/post.entity';
-import { UserPhoto } from './user-photo.entity';
+import Token from '../../token/entity/token.entity';
 import { UserConfirmation } from './user-confirmation.entity';
+import { UserPhoto } from './user-photo.entity';
 
 @Entity()
 class User {
@@ -27,9 +27,6 @@ class User {
 
   @Column()
   email: string;
-
-  @Column()
-  password: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;

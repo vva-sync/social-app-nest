@@ -1,13 +1,14 @@
-import { Request } from 'express';
-import { BaseRepository } from '../../shared/base-repository';
-import { DataSource, ILike } from 'typeorm';
-import { CreateUserDto } from './dto/user.dto';
-import User from './entities/user.entity';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { UserPhoto } from './entities/user-photo.entity';
 import { ManagedUpload } from 'aws-sdk/clients/s3';
+import { Request } from 'express';
+import { DataSource, ILike } from 'typeorm';
+import { BaseRepository } from '../../shared/base-repository';
+import { CreateUserDto } from './dto/user.dto';
 import { UserConfirmation } from './entities/user-confirmation.entity';
+import { UserPassword } from './entities/user-passwords.entity';
+import { UserPhoto } from './entities/user-photo.entity';
+import User from './entities/user.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserRepository extends BaseRepository {
@@ -21,6 +22,14 @@ export class UserRepository extends BaseRepository {
 
   async findUserByEmail(email: string) {
     return await this.getRepository(User).findOneBy({ email });
+  }
+
+  async findUserPassword(id: number) {
+    return await this.getRepository(UserPassword).query(`
+      SELECT password
+      FROM user_passwords
+      WHERE id = ${id};
+      `)
   }
 
   async findUserById(id: number) {
