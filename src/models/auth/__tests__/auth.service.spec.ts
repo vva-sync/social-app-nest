@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../auth.service';
 
+import { MailerService } from '@nestjs-modules/mailer';
 import { HttpException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { TokenService } from '../../token/token.service';
@@ -13,6 +14,9 @@ describe('AuthService', () => {
 
   const findUserByEmail = jest.fn();
   const createUser = jest.fn();
+  const findUserPassword = jest.fn();
+  const isActivatedUser = jest.fn();
+  const findTokenByUser = jest.fn();
 
   const user = {
     username: 'username',
@@ -37,6 +41,15 @@ describe('AuthService', () => {
           useValue: {
             findUserByEmail,
             createUser,
+            saveUserActivationLink: jest.fn(),
+            findUserPassword,
+            isActivatedUser,
+          },
+        },
+        {
+          provide: MailerService,
+          useValue: {
+            sendMail: jest.fn(),
           },
         },
         {
@@ -47,6 +60,8 @@ describe('AuthService', () => {
             refreshAccessToken: jest.fn(),
             deleteRefreshToken: jest.fn(),
             saveRefreshToken: jest.fn(),
+            findTokenByUser,
+
           },
         },
       ],
@@ -54,6 +69,8 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     tokenService = module.get<TokenService>(TokenService);
+
+    jest.resetAllMocks();
   });
 
   it('authService should be defined', () => {
@@ -102,6 +119,9 @@ describe('AuthService', () => {
     findUserByEmail.mockResolvedValueOnce({
       email: 'alreadyExists@gmail.com',
     });
+    findUserPassword.mockResolvedValueOnce('password');
+    isActivatedUser.mockResolvedValueOnce(true);
+    findTokenByUser.mockResolvedValueOnce(false);
     jest.spyOn(bcrypt, 'compareSync').mockReturnValueOnce(true);
 
     (tokenService.generateAccessToken as jest.Mock).mockReturnValueOnce(

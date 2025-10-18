@@ -11,14 +11,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { AuthGuard } from 'src/guards/auth.guard';
+import { AuthGuard } from '../../guards/auth.guard';
 import { CreatePostRequestDto } from './dto/post.dto';
 import { PostService } from './post.service';
 
 @UseGuards(AuthGuard)
 @Controller('/:userId/posts')
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService) { }
 
   @Get()
   async getPosts(@Param('userId', ParseIntPipe) userId: number) {

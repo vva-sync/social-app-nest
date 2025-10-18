@@ -45,10 +45,14 @@ export class AuthService {
 
   async login(loginUserDto: LoginUserDto) {
     const user = await this.userService.findUserByEmail(loginUserDto.email);
-    const userPassword = await this.userService.findUserPassword(user.id);
-
 
     if (!user) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
+
+    const userPassword = await this.userService.findUserPassword(user.id);
+
+    if (!userPassword) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
 

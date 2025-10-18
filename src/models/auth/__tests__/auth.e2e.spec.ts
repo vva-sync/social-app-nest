@@ -1,13 +1,17 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import * as request from 'supertest';
+import { TokenRepository } from '../../../../src/models/token/token.repository';
+import { TransactionInterceptor } from '../../../shared/transaction.interceptors';
+import { AwsService } from '../../aws/aws.service';
 import Token from '../../token/entity/token.entity';
 import { TokenService } from '../../token/token.service';
 import User from '../../user/entities/user.entity';
+import { UserRepository } from '../../user/user.repository';
 import { UserService } from '../../user/user.service';
 import { AuthModule } from '../auth.module';
 import { AuthService } from '../auth.service';
-import * as request from 'supertest';
 
 describe('AuthModule', () => {
   let app: INestApplication;
@@ -42,7 +46,16 @@ describe('AuthModule', () => {
       .useValue({
         findUserByEmail: jest.fn(),
       })
+      .overrideProvider(AwsService)
+      .useValue({})
+      .overrideProvider(TokenRepository)
+      .useValue({})
+      .overrideProvider(UserRepository)
+      .useValue({})
+      .overrideInterceptor(TransactionInterceptor)
+      .useValue({})
       .compile();
+
 
     app = moduleFixture.createNestApplication();
     authService = moduleFixture.get<AuthService>(AuthService);

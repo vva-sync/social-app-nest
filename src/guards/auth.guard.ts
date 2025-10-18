@@ -7,15 +7,15 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
-import { IS_PUBLIC_KEY } from 'src/decorators/public.decorator';
-import { TokenService } from 'src/models/token/token.service';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { TokenService } from '../models/token/token.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private tokenService: TokenService,
     private reflector: Reflector,
-  ) {}
+  ) { }
 
   canActivate(
     context: ExecutionContext,

@@ -2,7 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 
+import { TransactionInterceptor } from '../../../shared/transaction.interceptors';
 import { TokenService } from '../../token/token.service';
+import { UserService } from '../../user/user.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -39,8 +41,14 @@ describe('AuthController', () => {
             refreshAccessToken: jest.fn(),
           },
         },
+        {
+          provide: UserService,
+          useValue: {
+
+          },
+        }
       ],
-    }).compile();
+    }).overrideInterceptor(TransactionInterceptor).useValue({}).compile();
 
     authService = module.get<AuthService>(AuthService);
     tokenService = module.get<TokenService>(TokenService);

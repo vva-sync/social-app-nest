@@ -1,15 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PostsController } from './posts.controller';
+import { AuthGuard } from '../../../../src/guards/auth.guard';
+import { PostController } from '../post.controller';
+import { PostService } from '../post.service';
 
 describe('PostsController', () => {
-  let controller: PostsController;
+  let controller: PostController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [PostsController],
-    }).compile();
+      controllers: [PostController],
+      providers: [PostService],
+    }).overrideGuard(AuthGuard).useValue({}).overrideProvider(PostService).useValue({}).compile();
 
-    controller = module.get<PostsController>(PostsController);
+    controller = module.get<PostController>(PostController);
   });
 
   it('should be defined', () => {

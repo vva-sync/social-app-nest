@@ -7,17 +7,17 @@ import {
   Res,
   UseInterceptors,
 } from '@nestjs/common';
-import { Public } from 'src/decorators/public.decorator';
-import { TransactionInterceptor } from 'src/shared/transaction.interceptors';
+import { Response } from 'express';
+import { Public } from '../../decorators/public.decorator';
+import { TransactionInterceptor } from '../../shared/transaction.interceptors';
 import { TokenService } from '../token/token.service';
 import {
   CreateUserDto,
   LoginUserDto,
   RefreshTokenDto,
 } from '../user/dto/user.dto';
-import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
-import { Response } from 'express';
+import { AuthService } from './auth.service';
 
 @Public()
 @Controller('auth')
@@ -26,7 +26,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   @Get('confirm/:link')
   async confirmEmail(@Param('link') link: string, @Res() res: Response) {
@@ -34,7 +34,7 @@ export class AuthController {
       await this.userService.activate(link);
 
       return res.redirect('http://localhost:5175/auth');
-    } catch {}
+    } catch { }
   }
 
   @UseInterceptors(TransactionInterceptor)

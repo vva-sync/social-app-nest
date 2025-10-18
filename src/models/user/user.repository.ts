@@ -2,7 +2,7 @@ import { Inject, Injectable, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { ManagedUpload } from 'aws-sdk/clients/s3';
 import { Request } from 'express';
-import { DataSource, ILike } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { BaseRepository } from '../../shared/base-repository';
 import { CreateUserDto } from './dto/user.dto';
 import { UserConfirmation } from './entities/user-confirmation.entity';
@@ -20,16 +20,22 @@ export class UserRepository extends BaseRepository {
     return await this.getRepository(User).save(user);
   }
 
-  async findUserByEmail(email: string) {
+  async findUserByEmail(email: string): Promise<User | null> {
     return await this.getRepository(User).findOneBy({ email });
   }
 
   async findUserPassword(id: number) {
-    return await this.getRepository(UserPassword).query(`
+    const passArray = await this.getRepository(UserPassword).query(`
       SELECT password
       FROM user_passwords
       WHERE id = ${id};
-      `)
+      `) as { password: string }[] | null;
+
+    if (!passArray) {
+      return null;
+    }
+
+    return passArray[0].password;
   }
 
   async findUserById(id: number) {
@@ -83,12 +89,16 @@ export class UserRepository extends BaseRepository {
   }
 
   async getUsers(search: string, offset: number, limit: number) {
-    return await this.getRepository(User).find({
-      where: {
-        username: ILike(`%${search}%`),
-      },
-      skip: offset,
-      take: limit,
-    });
+    return await this.getRepository(User).query(`
+      SELECT *
+      FROM "user"
+      WHERE username LIKE $1
+         OR first_name LIKE $1
+         OR last_name LIKE $1
+      LIMIT $2 
+      OFFSET $3
+      `,
+      [`%${search}%`, limit, offset]
+    )
   }
 }
