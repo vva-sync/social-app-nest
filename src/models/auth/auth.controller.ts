@@ -30,6 +30,7 @@ export class AuthController {
 
   @Get('confirm/:link')
   async confirmEmail(@Param('link') link: string, @Res() res: Response) {
+
     try {
       await this.userService.activate(link);
 
