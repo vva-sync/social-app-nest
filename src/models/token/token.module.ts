@@ -6,11 +6,11 @@ import { TokenRepository } from './token.repository';
 import { TokenService } from './token.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Token])],
+  imports: [TypeOrmModule.forFeature([Token]),],
   providers: [TokenService, TokenRepository],
   controllers: [TokenController],
   exports: [TokenService, TokenRepository],
 })
 export class TokenModule {
-  constructor() {}
+  constructor() { }
 }

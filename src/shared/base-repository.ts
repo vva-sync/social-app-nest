@@ -6,7 +6,7 @@ export class BaseRepository {
   constructor(
     private dataSource: DataSource,
     private request: Request,
-  ) {}
+  ) { }
 
   protected getRepository<T>(entityCls: new () => T): Repository<T> {
     const entityManager: EntityManager =

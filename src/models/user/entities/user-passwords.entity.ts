@@ -4,10 +4,12 @@ import User from './user.entity';
 @Entity('user_passwords')
 export class UserPassword {
     @PrimaryColumn()
-    @OneToOne(() => User)
-    @JoinColumn()
     id: number;
 
-    @Column()
+    @Column({ nullable: false })
     password: string;
+
+    @OneToOne(() => User)
+    @JoinColumn({ name: "id", foreignKeyConstraintName: "FK_user_passwords_user" })
+    user: User;
 }

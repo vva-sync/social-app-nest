@@ -5,7 +5,7 @@ import {
   Post,
   Query,
   UploadedFile,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
@@ -14,6 +14,10 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
+  @Get('/users/:userId')
+  async getUser(@Param('userId') userId: number) {
+    return await this.userService.findUserById(userId);
+  }
   @Get('/users')
   async getUsers(
     @Query('search') search: string,

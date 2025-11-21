@@ -34,8 +34,12 @@ export class UserService {
     return userActivationInfo.isActivated;
   }
 
-  async createUser(userInfo: CreateUserDto) {
+  async createUser(userInfo: Omit<CreateUserDto, 'password'>) {
     return await this.userRepository.createUser(userInfo);
+  }
+
+  async saveUserPassword(userId: number, password: string) {
+    return await this.userRepository.saveUserPassword(userId, password);
   }
 
   async saveUserActivationLink(user: User, activationLink: string) {

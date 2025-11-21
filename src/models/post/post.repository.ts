@@ -38,6 +38,12 @@ export class PostRepository extends BaseRepository {
       .getMany();
   }
 
+  async getPostById(id: number): Promise<Post> {
+    return await this.getRepository(Post).query(`
+      SELECT * FROM post WHERE id = ${id}
+    `)
+  }
+
   async createPost(dto: {
     title: string;
     content: string;

@@ -16,7 +16,7 @@ export class UserRepository extends BaseRepository {
     super(dataSource, request);
   }
 
-  async createUser(user: CreateUserDto) {
+  async createUser(user: Omit<CreateUserDto, 'password'>) {
     return await this.getRepository(User).save(user);
   }
 
@@ -24,12 +24,18 @@ export class UserRepository extends BaseRepository {
     return await this.getRepository(User).findOneBy({ email });
   }
 
+  async saveUserPassword(id: number, password: string) {
+    return await this.getRepository(UserPassword).query(`
+        INSERT INTO user_passwords (id, password) VALUES (${id}, '${password}')
+      `) as { id: number; }[] | null;
+  }
+
   async findUserPassword(id: number) {
     const passArray = await this.getRepository(UserPassword).query(`
-      SELECT password
-      FROM user_passwords
-      WHERE id = ${id};
-      `) as { password: string }[] | null;
+        SELECT password
+        FROM user_passwords
+        WHERE id = ${id};
+      `) as { password: string; }[] | null;
 
     if (!passArray) {
       return null;
@@ -95,10 +101,11 @@ export class UserRepository extends BaseRepository {
       WHERE username LIKE $1
          OR first_name LIKE $1
          OR last_name LIKE $1
-      LIMIT $2 
+      ORDER BY "username" ASC
+      LIMIT $2
       OFFSET $3
       `,
       [`%${search}%`, limit, offset]
-    )
+    ) as User[] | null;
   }
 }

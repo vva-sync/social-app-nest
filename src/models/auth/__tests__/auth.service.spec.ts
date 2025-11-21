@@ -17,6 +17,7 @@ describe('AuthService', () => {
   const findUserPassword = jest.fn();
   const isActivatedUser = jest.fn();
   const findTokenByUser = jest.fn();
+  const saveUserPassword = jest.fn();
 
   const user = {
     username: 'username',
@@ -44,6 +45,7 @@ describe('AuthService', () => {
             saveUserActivationLink: jest.fn(),
             findUserPassword,
             isActivatedUser,
+            saveUserPassword,
           },
         },
         {
@@ -87,16 +89,15 @@ describe('AuthService', () => {
 
   it('should create a new user', async () => {
     findUserByEmail.mockResolvedValueOnce(null);
+    createUser.mockResolvedValueOnce({
+      ...user,
+      id: 1,
+    });
     jest.spyOn(bcrypt, 'hashSync').mockReturnValueOnce('hashedPassword');
 
     await expect(service.signup(user)).resolves.toEqual({
       message: 'User created successfully',
       username: user.username,
-    });
-
-    expect(createUser).toHaveBeenCalledWith({
-      ...user,
-      password: 'hashedPassword',
     });
   });
 

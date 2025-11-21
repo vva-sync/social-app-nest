@@ -6,16 +6,16 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Req,
   UploadedFiles,
-  UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { AuthGuard } from '../../guards/auth.guard';
+import { Request } from 'express';
+import User from '../user/entities/user.entity';
 import { CreatePostRequestDto } from './dto/post.dto';
 import { PostService } from './post.service';
 
-@UseGuards(AuthGuard)
 @Controller('/:userId/posts')
 export class PostController {
   constructor(private readonly postService: PostService) { }
@@ -48,7 +48,7 @@ export class PostController {
   }
 
   @Delete('/:postId')
-  async deletePost(@Param('postId', ParseIntPipe) postId: number) {
-    return await this.postService.deletePost(postId);
+  async deletePost(@Req() request: Request & { user: User }, @Param('postId', ParseIntPipe) postId: number) {
+    return await this.postService.deletePost(postId, request.user);
   }
 }

@@ -17,7 +17,7 @@ export class AuthService {
   ) { }
 
   async signup(user: CreateUserDto) {
-    const { password } = user;
+    const { password, ...userData } = user;
 
     const isUserExist = await this.userService.findUserByEmail(user.email);
 
@@ -28,10 +28,11 @@ export class AuthService {
     const hashedPassword = this.hashPassword(password);
     const activationLink = uuid();
 
-    const newUser = await this.userService.createUser({
-      ...user,
-      password: hashedPassword,
-    });
+    const newUser = await this.userService.createUser(userData);
+
+    console.log(newUser);
+
+    await this.userService.saveUserPassword(newUser.id, hashedPassword);
 
     await this.userService.saveUserActivationLink(newUser, activationLink);
 

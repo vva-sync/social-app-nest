@@ -5,7 +5,7 @@ import {
   Param,
   Post,
   Res,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { Response } from 'express';
 import { Public } from '../../decorators/public.decorator';

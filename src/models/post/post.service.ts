@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AwsService } from '../aws/aws.service';
+import User from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
+import { Post } from './entity/post.entity';
 import { PostRepository } from './post.repository';
 
 @Injectable()
@@ -9,7 +11,7 @@ export class PostService {
     private readonly postRepository: PostRepository,
     private readonly userService: UserService,
     private readonly awsService: AwsService,
-  ) {}
+  ) { }
 
   async getPosts(userId: number) {
     const user = await this.userService.findUserById(userId);
@@ -50,7 +52,23 @@ export class PostService {
     }
   }
 
-  async deletePost(id: number) {
+  checkIfPostCanBeDeleted(post: Post, user: User) {
+    return post.owner.id === user.id || post.creator.id === user.id;
+  }
+
+  async deletePost(id: number, user: User) {
+    const post = await this.postRepository.getPostById(id);
+
+    if (!post) {
+      throw new HttpException('Post does not exist', HttpStatus.NOT_FOUND);
+    }
+
+    const canBeDeleted = this.checkIfPostCanBeDeleted(post, user);
+
+    if (!canBeDeleted) {
+      throw new HttpException('You are not allowed to delete this post', HttpStatus.FORBIDDEN);
+    }
+
     const postPhotos = await this.postRepository.getPostPhotos(id);
 
     if (!postPhotos.length) {
