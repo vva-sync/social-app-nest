@@ -6,6 +6,7 @@ import databaseConfig from './database.config';
 import mailerConfig from './mail.config';
 import s3Config from './s3.config';
 import serverConfig from './server.config';
+import redisConfig from './redis.config';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import serverConfig from './server.config';
         mailerConfig,
         serverConfig,
         clientConfig,
+        redisConfig,
       ],
       envFilePath: '.env',
       isGlobal: true,

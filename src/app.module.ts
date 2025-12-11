@@ -11,6 +11,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthModule } from './models/auth/auth.module';
 import { AwsModule } from './models/aws/aws.module';
+import { Cache } from './models/cache/cache.module';
 import { PostsModule } from './models/post/post.module';
 import Token from './models/token/entity/token.entity';
 import { TokenModule } from './models/token/token.module';
@@ -20,6 +21,7 @@ import { UserModule } from './models/user/user.module';
 
 @Module({
   imports: [
+    Cache,
     UserModule,
     TokenModule,
     MyConfigModule,
@@ -46,4 +48,4 @@ import { UserModule } from './models/user/user.module';
   ],
   controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}

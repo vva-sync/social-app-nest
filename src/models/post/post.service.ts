@@ -1,18 +1,22 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { AwsService } from '../aws/aws.service';
+import { CacheService } from '../cache/cache.service';
 import User from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { Post } from './entity/post.entity';
 import { PostRepository } from './post.repository';
+import { Cached } from '../cache/decorators/cached.decorator';
 
 @Injectable()
 export class PostService {
   constructor(
+    @Inject(CacheService) private cacheManager: CacheService,
     private readonly postRepository: PostRepository,
     private readonly userService: UserService,
     private readonly awsService: AwsService,
-  ) { }
+  ) {}
 
+  @Cached(Array<Post>, (id: number) => `user:${id}`, 60)
   async getPosts(userId: number) {
     const user = await this.userService.findUserById(userId);
 
@@ -20,7 +24,9 @@ export class PostService {
       throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
     }
 
-    return await this.postRepository.getPosts(userId);
+    const posts = await this.postRepository.getPosts(userId);
+
+    return posts;
   }
 
   async createPost(dto: {
@@ -66,7 +72,10 @@ export class PostService {
     const canBeDeleted = this.checkIfPostCanBeDeleted(post, user);
 
     if (!canBeDeleted) {
-      throw new HttpException('You are not allowed to delete this post', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'You are not allowed to delete this post',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const postPhotos = await this.postRepository.getPostPhotos(id);

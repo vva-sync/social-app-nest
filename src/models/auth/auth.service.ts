@@ -14,7 +14,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly tokenService: TokenService,
     private readonly mailerService: MailerService,
-  ) { }
+  ) {}
 
   async signup(user: CreateUserDto) {
     const { password, ...userData } = user;
@@ -29,8 +29,6 @@ export class AuthService {
     const activationLink = uuid();
 
     const newUser = await this.userService.createUser(userData);
-
-    console.log(newUser);
 
     await this.userService.saveUserPassword(newUser.id, hashedPassword);
 
