@@ -6,10 +6,11 @@ import { PostController } from './post.controller';
 import { PostRepository } from './post.repository';
 import { PostService } from './post.service';
 import { Cache } from '../cache/cache.module';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
-  imports: [TokenModule, UserModule, AwsModule, Cache],
+  imports: [TokenModule, UserModule, AwsModule, Cache, PrismaModule],
   controllers: [PostController],
   providers: [PostService, PostRepository],
 })
-export class PostsModule { }
+export class PostsModule {}

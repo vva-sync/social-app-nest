@@ -6,6 +6,7 @@ import { UserService } from '../user/user.service';
 import { Post } from './entity/post.entity';
 import { PostRepository } from './post.repository';
 import { Cached } from '../cache/decorators/cached.decorator';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class PostService {
@@ -14,6 +15,7 @@ export class PostService {
     private readonly postRepository: PostRepository,
     private readonly userService: UserService,
     private readonly awsService: AwsService,
+    private readonly prismaService: PrismaService,
   ) {}
 
   @Cached(Array<Post>, (id: number) => `user:${id}`, 60)
@@ -52,6 +54,8 @@ export class PostService {
 
     const post = await this.postRepository.createPost(newPost);
 
+    await this.cacheManager.del(`user:${owner.id}`);
+
     if (dto.files) {
       const savedPhotos = await this.awsService.uploadFiles(dto.files);
       await this.postRepository.savePostPhotos(savedPhotos, post);
@@ -83,6 +87,8 @@ export class PostService {
     if (!postPhotos.length) {
       return await this.postRepository.deletePost(id);
     }
+
+    await this.cacheManager.del(`user:${post.owner.id}`);
 
     return Promise.all(
       postPhotos.map(async (photo) => {

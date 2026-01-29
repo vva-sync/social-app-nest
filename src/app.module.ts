@@ -18,6 +18,7 @@ import { TokenModule } from './models/token/token.module';
 import { TokenRepository } from './models/token/token.repository';
 import { TokenService } from './models/token/token.service';
 import { UserModule } from './models/user/user.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UserModule } from './models/user/user.module';
     TypeOrmModule.forFeature([Token]),
     PostsModule,
     AwsModule,
+    PrismaModule,
     MailerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: getMailConfig,

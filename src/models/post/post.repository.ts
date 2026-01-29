@@ -39,9 +39,10 @@ export class PostRepository extends BaseRepository {
   }
 
   async getPostById(id: number): Promise<Post> {
-    return await this.getRepository(Post).query(`
-      SELECT * FROM post WHERE id = ${id}
-    `)
+    return await this.getRepository(Post).findOne({
+      where: { id },
+      relations: ['owner'],
+    });
   }
 
   async createPost(dto: {

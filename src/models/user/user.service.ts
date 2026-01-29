@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { User } from '../../generated/prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 import { AwsService } from '../aws/aws.service';
 import { CreateUserDto } from './dto/user.dto';
-import User from './entities/user.entity';
 import { UserRepository } from './user.repository';
 
 @Injectable()
@@ -9,9 +10,10 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly awsService: AwsService,
-  ) { }
+    private readonly prismaService: PrismaService,
+  ) {}
 
-  async findUserByEmail(email: string) {
+  async findUserByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findUserByEmail(email);
   }
 
@@ -24,7 +26,14 @@ export class UserService {
   }
 
   async findUserByActivationLink(link: string) {
-    return await this.userRepository.findUserByActivationLink(link);
+    return await this.prismaService.userConfirmation.findFirst({
+      where: {
+        activation_link: link,
+      },
+      include: {
+        user: true,
+      },
+    });
   }
 
   async isActivatedUser(userId: number) {
@@ -35,30 +44,45 @@ export class UserService {
   }
 
   async createUser(userInfo: Omit<CreateUserDto, 'password'>) {
-    return await this.userRepository.createUser(userInfo);
+    return await this.prismaService.user.create({
+      data: userInfo,
+    });
   }
 
   async saveUserPassword(userId: number, password: string) {
-    return await this.userRepository.saveUserPassword(userId, password);
+    return await this.prismaService.userPassword.create({
+      data: {
+        user_id: userId,
+        password,
+      },
+    });
   }
 
   async saveUserActivationLink(user: User, activationLink: string) {
-    return await this.userRepository.saveUserActivationLink(
-      user,
-      activationLink,
-    );
+    return await this.prismaService.userConfirmation.create({
+      data: {
+        user_id: user.id,
+        activation_link: activationLink,
+        is_activated: false,
+      },
+    });
   }
 
   async activate(link: string) {
-    const userConfirmationInfo = await this.findUserByActivationLink(link);
-
-    const { user } = userConfirmationInfo;
+    const { user } = await this.findUserByActivationLink(link);
 
     if (!user) {
       throw new HttpException('User does not exist', HttpStatus.UNAUTHORIZED);
     }
 
-    await this.userRepository.activate(user.id);
+    await this.prismaService.userConfirmation.update({
+      where: {
+        user_id: user.id,
+      },
+      data: {
+        is_activated: true,
+      },
+    });
 
     return {
       message: 'User activated successfully',

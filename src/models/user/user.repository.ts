@@ -25,17 +25,17 @@ export class UserRepository extends BaseRepository {
   }
 
   async saveUserPassword(id: number, password: string) {
-    return await this.getRepository(UserPassword).query(`
+    return (await this.getRepository(UserPassword).query(`
         INSERT INTO user_passwords (id, password) VALUES (${id}, '${password}')
-      `) as { id: number; }[] | null;
+      `)) as { id: number }[] | null;
   }
 
   async findUserPassword(id: number) {
-    const passArray = await this.getRepository(UserPassword).query(`
+    const passArray = (await this.getRepository(UserPassword).query(`
         SELECT password
         FROM user_passwords
         WHERE id = ${id};
-      `) as { password: string; }[] | null;
+      `)) as { password: string }[] | null;
 
     if (!passArray) {
       return null;
@@ -81,21 +81,10 @@ export class UserRepository extends BaseRepository {
   async findUserPhotoByName(name: string) {
     return await this.getRepository(UserPhoto).findOneBy({ name });
   }
-  async activate(userId: number) {
-    return await this.getRepository(UserConfirmation).update(
-      {
-        user: {
-          id: userId,
-        },
-      },
-      {
-        isActivated: true,
-      },
-    );
-  }
 
   async getUsers(search: string, offset: number, limit: number) {
-    return await this.getRepository(User).query(`
+    return (await this.getRepository(User).query(
+      `
       SELECT *
       FROM "user"
       WHERE username LIKE $1
@@ -105,7 +94,7 @@ export class UserRepository extends BaseRepository {
       LIMIT $2
       OFFSET $3
       `,
-      [`%${search}%`, limit, offset]
-    ) as User[] | null;
+      [`%${search}%`, limit, offset],
+    )) as User[] | null;
   }
 }

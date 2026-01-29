@@ -5,7 +5,7 @@ import {
   Param,
   Post,
   Res,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { Public } from '../../decorators/public.decorator';
@@ -26,16 +26,17 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
-  ) { }
+  ) {}
 
   @Get('confirm/:link')
   async confirmEmail(@Param('link') link: string, @Res() res: Response) {
-
     try {
       await this.userService.activate(link);
 
       return res.redirect('http://localhost:5175/auth');
-    } catch { }
+    } catch (error) {
+      console.error('Error activating user:', error);
+    }
   }
 
   @UseInterceptors(TransactionInterceptor)

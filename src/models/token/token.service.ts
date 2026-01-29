@@ -23,8 +23,8 @@ export class TokenService {
     return await this.tokenRepository.findRefreshToken(refreshToken);
   }
 
-  async findTokenByUser(user: User) {
-    return await this.tokenRepository.findRefreshTokenByUser(user);
+  async findTokenByUser(id: number) {
+    return await this.tokenRepository.findRefreshTokenByUser(id);
   }
 
   verifyAccessToken(token: string) {

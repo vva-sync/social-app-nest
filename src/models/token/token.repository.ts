@@ -26,9 +26,9 @@ export class TokenRepository extends BaseRepository {
     });
   }
 
-  async findRefreshTokenByUser(user: User) {
+  async findRefreshTokenByUser(id: number) {
     return await this.getRepository(Token).findOne({
-      where: { user: { id: user.id } },
+      where: { user: { id } },
     });
   }
 }

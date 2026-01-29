@@ -6,9 +6,15 @@ import User from '../user/entities/user.entity';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Token]), TokenModule, UserModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Token]),
+    TokenModule,
+    UserModule,
+    PrismaModule,
+  ],
   providers: [AuthService],
   controllers: [AuthController],
 })
