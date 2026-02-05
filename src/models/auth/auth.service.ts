@@ -7,6 +7,7 @@ import { TokenService } from '../token/token.service';
 import { CreateUserDto, LoginUserDto } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UserRepository } from '../user/repositories/user.repository';
 
 @Injectable()
 export class AuthService {
@@ -16,14 +17,13 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly mailerService: MailerService,
     private readonly prismaService: PrismaService,
+    private readonly userRepository: UserRepository,
   ) {}
 
   async signup(user: CreateUserDto) {
     const { password, ...userData } = user;
 
-    const isUserExist = await this.prismaService.user.findUnique({
-      where: { email: user.email },
-    });
+    const isUserExist = await this.userRepository.findByEmail(user.email);
 
     if (isUserExist) {
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
@@ -56,7 +56,9 @@ export class AuthService {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
 
-    const userPassword = await this.userService.findUserPassword(user.id);
+    const { password: userPassword } = await this.userService.findUserPassword(
+      user.id,
+    );
 
     if (!userPassword) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
@@ -95,7 +97,6 @@ export class AuthService {
       id: user.id,
     });
 
-    // @ts-expect-error: will refactor to prisma service later
     await this.tokenService.saveRefreshToken(refreshToken, user);
 
     return {

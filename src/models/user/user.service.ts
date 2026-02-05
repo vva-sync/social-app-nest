@@ -2,86 +2,79 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AwsService } from '../aws/aws.service';
+import { UserRepository } from './repositories/user.repository';
+import { IUser } from './repositories/user.repository.interface';
+import { UserConfirmationRepository } from './repositories/userConfirmation.repository';
+import { UserPasswordRepository } from './repositories/userPassword.repository';
+import { UserPhotoRepository } from './repositories/userPhoto.repository';
 import { CreateUserDto } from './dto/user.dto';
-import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly userRepository: UserRepository,
     private readonly awsService: AwsService,
     private readonly prismaService: PrismaService,
+    private readonly userRepository: UserRepository,
+    private readonly userPasswordRepository: UserPasswordRepository,
+    private readonly userConfirmationRepository: UserConfirmationRepository,
+    private readonly userPhotoRepository: UserPhotoRepository,
   ) {}
 
-  async findUserByEmail(email: string): Promise<User | null> {
-    return await this.userRepository.findUserByEmail(email);
+  async findUserByEmail(email: string): Promise<IUser | null> {
+    return await this.userRepository.findByEmail(email);
   }
 
   async findUserPassword(id: number) {
-    return await this.userRepository.findUserPassword(id);
+    return await this.userPasswordRepository.findById(id);
   }
 
-  async findUserById(id: number) {
-    return await this.userRepository.findUserById(id);
+  async findUserById(id: number): Promise<IUser | null> {
+    return await this.userRepository.findById(id);
   }
 
   async findUserByActivationLink(link: string) {
-    return await this.prismaService.userConfirmation.findFirst({
-      where: {
-        activation_link: link,
-      },
-      include: {
-        user: true,
-      },
-    });
+    return await this.userConfirmationRepository.findByActivationLink(link);
   }
 
   async isActivatedUser(userId: number) {
     const userActivationInfo =
-      await this.userRepository.isActivatedUser(userId);
+      await this.userConfirmationRepository.findByUserId(userId);
 
-    return userActivationInfo.isActivated;
+    if (!userActivationInfo) {
+      return false;
+    }
+
+    return userActivationInfo.is_activated;
   }
 
   async createUser(userInfo: Omit<CreateUserDto, 'password'>) {
-    return await this.prismaService.user.create({
-      data: userInfo,
-    });
+    return await this.userRepository.create(userInfo);
   }
 
   async saveUserPassword(userId: number, password: string) {
-    return await this.prismaService.userPassword.create({
-      data: {
-        user_id: userId,
-        password,
-      },
+    return await this.userPasswordRepository.create({
+      user_id: userId,
+      password,
     });
   }
 
-  async saveUserActivationLink(user: User, activationLink: string) {
-    return await this.prismaService.userConfirmation.create({
-      data: {
-        user_id: user.id,
-        activation_link: activationLink,
-        is_activated: false,
-      },
+  async saveUserActivationLink(user: IUser | User, activationLink: string) {
+    return this.userConfirmationRepository.create({
+      user_id: user.id,
+      activation_link: activationLink,
+      is_activated: false,
     });
   }
 
   async activate(link: string) {
-    const { user } = await this.findUserByActivationLink(link);
+    const { user_id } = await this.findUserByActivationLink(link);
 
-    if (!user) {
+    if (!user_id) {
       throw new HttpException('User does not exist', HttpStatus.UNAUTHORIZED);
     }
 
-    await this.prismaService.userConfirmation.update({
-      where: {
-        user_id: user.id,
-      },
-      data: {
-        is_activated: true,
-      },
+    await this.userConfirmationRepository.update(user_id, {
+      is_activated: true,
     });
 
     return {
@@ -90,13 +83,13 @@ export class UserService {
   }
 
   async uploadImage(userId: number, file: Express.Multer.File) {
-    const user = await this.userRepository.findUserById(userId);
+    const user = await this.userRepository.findById(userId);
 
     if (!user) {
       throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
     }
 
-    const isFileExists = await this.userRepository.findUserPhotoByName(
+    const isFileExists = await this.userPhotoRepository.findUserPhotoByName(
       file.originalname,
     );
 
@@ -106,10 +99,14 @@ export class UserService {
 
     const result = await this.awsService.uploadFile(file);
 
-    await this.userRepository.saveUserPhoto(user, result);
+    await this.userPhotoRepository.create({
+      url: result.Location,
+      isMain: false,
+      user_id: user.id,
+    });
   }
 
   async getUsers(search: string, offset: number, limit: number) {
-    return await this.userRepository.getUsers(search, offset, limit);
+    return await this.userRepository.search(search, offset, limit);
   }
 }

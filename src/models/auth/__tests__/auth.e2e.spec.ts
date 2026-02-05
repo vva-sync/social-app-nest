@@ -8,7 +8,7 @@ import { AwsService } from '../../aws/aws.service';
 import Token from '../../token/entity/token.entity';
 import { TokenService } from '../../token/token.service';
 import User from '../../user/entities/user.entity';
-import { UserRepository } from '../../user/user.repository';
+import { UserRepository } from '../../user/repositories/user.repository';
 import { UserService } from '../../user/user.service';
 import { AuthModule } from '../auth.module';
 import { AuthService } from '../auth.service';
@@ -55,7 +55,6 @@ describe('AuthModule', () => {
       .overrideInterceptor(TransactionInterceptor)
       .useValue({})
       .compile();
-
 
     app = moduleFixture.createNestApplication();
     authService = moduleFixture.get<AuthService>(AuthService);

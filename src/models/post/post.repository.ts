@@ -4,9 +4,9 @@ import { ManagedUpload } from 'aws-sdk/clients/s3';
 import { Request } from 'express';
 import { DataSource } from 'typeorm';
 import { BaseRepository } from '../../shared/base-repository';
-import User from '../user/entities/user.entity';
 import { PostPhoto } from './entity/post-photo.entity';
 import { Post } from './entity/post.entity';
+import { IUser } from '../user/repositories/user.repository.interface';
 
 export class PostRepository extends BaseRepository {
   constructor(dataSource: DataSource, @Inject(REQUEST) request: Request) {
@@ -48,8 +48,8 @@ export class PostRepository extends BaseRepository {
   async createPost(dto: {
     title: string;
     content: string;
-    owner: User;
-    creator: User;
+    owner: IUser;
+    creator: IUser;
   }) {
     return await this.getRepository(Post).save(dto);
   }
