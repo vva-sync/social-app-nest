@@ -2,7 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
@@ -15,7 +15,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private tokenService: TokenService,
     private reflector: Reflector,
-  ) { }
+  ) {}
 
   canActivate(
     context: ExecutionContext,

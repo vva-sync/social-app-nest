@@ -28,6 +28,7 @@ model User {
   userConfirmation UserConfirmation?
   createdPosts     Post[]            @relation("CreatedPosts")
   ownedPosts       Post[]            @relation("OwnedPosts")
+  role             Role?
 }
 
 model UserPassword {
@@ -86,4 +87,11 @@ model PostPhoto {
 
   post_id Int
   post    Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+}
+
+model Role {
+  user_id Int    @id @unique
+  role    String @db.VarChar(50)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
