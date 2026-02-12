@@ -14,6 +14,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
+    "backup:db": "source .env && pg_dump -U $DB_USERNAME -h $DB_HOST -p $DB_PORT $DB_NAME > backups/mydatabase-$(date +%Y-%m-%d_%H-%M-%S).bak",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
