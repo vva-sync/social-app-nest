@@ -19,6 +19,7 @@ import { TokenRepository } from './models/token/token.repository';
 import { TokenService } from './models/token/token.service';
 import { UserModule } from './models/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { PrismaModule } from './prisma/prisma.module';
       useClass: AuthGuard,
       scope: Scope.REQUEST,
     },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
   controllers: [AppController],
 })

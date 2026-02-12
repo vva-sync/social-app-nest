@@ -35,16 +35,16 @@ export class TokenService {
     return jwt.verify(
       token,
       this.configService.get('auth.refreshTokenSecret'),
-    ) as { username: string; id: number };
+    ) as { username: string; id: number; role: string };
   }
 
-  generateAccessToken(body: { username: string; id: number }) {
+  generateAccessToken(body: { username: string; id: number; role: string }) {
     return jwt.sign(body, this.configService.get('auth.accessTokenSecret'), {
       expiresIn: this.configService.get('auth.accessTokenExpiresIn'),
     });
   }
 
-  generateRefreshToken(body: { username: string; id: number }) {
+  generateRefreshToken(body: { username: string; id: number; role: string }) {
     return jwt.sign(body, this.configService.get('auth.refreshTokenSecret'), {
       expiresIn: this.configService.get('auth.refreshTokenExpiresIn'),
     });
@@ -57,7 +57,7 @@ export class TokenService {
       throw new UnauthorizedException({ message: 'Invalid token' });
     }
 
-    let decoded: { username: string; id: number };
+    let decoded: { username: string; id: number; role: string };
 
     try {
       decoded = this.verifyRefreshToken(refreshToken);
@@ -68,6 +68,7 @@ export class TokenService {
     const accessToken = this.generateAccessToken({
       username: decoded.username,
       id: decoded.id,
+      role: decoded.role,
     });
 
     return { accessToken };

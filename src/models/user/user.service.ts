@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { User } from '../../generated/prisma/client';
+import { RoleType, User } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AwsService } from '../aws/aws.service';
 import { UserRepository } from './repositories/user.repository';
@@ -8,6 +8,7 @@ import { UserConfirmationRepository } from './repositories/userConfirmation.repo
 import { UserPasswordRepository } from './repositories/userPassword.repository';
 import { UserPhotoRepository } from './repositories/userPhoto.repository';
 import { CreateUserDto } from './dto/user.dto';
+import { UserRoleRepository } from './repositories/userRole.repository';
 
 @Injectable()
 export class UserService {
@@ -18,6 +19,7 @@ export class UserService {
     private readonly userPasswordRepository: UserPasswordRepository,
     private readonly userConfirmationRepository: UserConfirmationRepository,
     private readonly userPhotoRepository: UserPhotoRepository,
+    private readonly userRoleRepository: UserRoleRepository,
   ) {}
 
   async findUserByEmail(email: string): Promise<IUser | null> {
@@ -108,5 +110,9 @@ export class UserService {
 
   async getUsers(search: string, offset: number, limit: number) {
     return await this.userRepository.search(search, offset, limit);
+  }
+
+  async assignRole(id: number, role: RoleType) {
+    await this.userRoleRepository.create(id, role);
   }
 }

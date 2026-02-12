@@ -10,6 +10,7 @@ import { PrismaModule } from '../../prisma/prisma.module';
 import { UserPasswordRepository } from './repositories/userPassword.repository';
 import { UserConfirmationRepository } from './repositories/userConfirmation.repository';
 import { UserPhotoRepository } from './repositories/userPhoto.repository';
+import { UserRoleRepository } from './repositories/userRole.repository';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UserPhotoRepository } from './repositories/userPhoto.repository';
     UserPasswordRepository,
     UserConfirmationRepository,
     UserPhotoRepository,
+    UserRoleRepository,
   ],
   exports: [UserService, UserRepository],
   controllers: [UserController],

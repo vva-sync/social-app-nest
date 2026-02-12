@@ -3,11 +3,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { uuid } from 'uuidv4';
+import { RoleType } from '../../generated/prisma/enums';
+import { PrismaService } from '../../prisma/prisma.service';
 import { TokenService } from '../token/token.service';
 import { CreateUserDto, LoginUserDto } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
-import { PrismaService } from '../../prisma/prisma.service';
-import { UserRepository } from '../user/repositories/user.repository';
 
 @Injectable()
 export class AuthService {
@@ -17,13 +17,12 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly mailerService: MailerService,
     private readonly prismaService: PrismaService,
-    private readonly userRepository: UserRepository,
   ) {}
 
   async signup(user: CreateUserDto) {
     const { password, ...userData } = user;
 
-    const isUserExist = await this.userRepository.findByEmail(user.email);
+    const isUserExist = await this.userService.findUserByEmail(user.email);
 
     if (isUserExist) {
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
@@ -32,24 +31,32 @@ export class AuthService {
     const hashedPassword = this.hashPassword(password);
     const activationLink = uuid();
 
-    const newUser = await this.userService.createUser(userData);
+    return await this.prismaService.$transaction(async () => {
+      try {
+        const newUser = await this.userService.createUser(userData);
 
-    await this.userService.saveUserPassword(newUser.id, hashedPassword);
+        await this.userService.saveUserPassword(newUser.id, hashedPassword);
+        await this.userService.saveUserActivationLink(newUser, activationLink);
+        await this.userService.assignRole(newUser.id, RoleType.USER);
+        await this.sendConfirmationEmail(user.email, activationLink);
 
-    await this.userService.saveUserActivationLink(newUser, activationLink);
-
-    await this.sendConfirmationEmail(user.email, activationLink);
-
-    return {
-      message: 'User created successfully',
-      username: user.username,
-    };
+        return {
+          message: 'User created successfully',
+          username: newUser.username,
+        };
+      } catch {
+        throw new HttpException(
+          'Failed to create user',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    });
   }
 
   async login(loginUserDto: LoginUserDto) {
     const user = await this.prismaService.user.findUnique({
       where: { email: loginUserDto.email },
-      include: { tokens: true },
+      include: { tokens: true, role: true },
     });
 
     if (!user) {
@@ -82,6 +89,7 @@ export class AuthService {
     const accessToken = this.tokenService.generateAccessToken({
       username: user.username,
       id: user.id,
+      role: user.role.role,
     });
 
     const isRefreshTokenExist = await this.tokenService.findTokenByUser(
@@ -95,6 +103,7 @@ export class AuthService {
     const refreshToken = this.tokenService.generateRefreshToken({
       username: user.username,
       id: user.id,
+      role: user.role.role,
     });
 
     await this.tokenService.saveRefreshToken(refreshToken, user);

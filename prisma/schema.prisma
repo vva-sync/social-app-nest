@@ -44,7 +44,7 @@ model Token {
   created_at DateTime @default(now()) @db.Timestamptz()
   user_id    Int
 
-  user User @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model UserPhoto {
@@ -89,9 +89,15 @@ model PostPhoto {
   post    Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
 
+enum RoleType {
+  USER
+  ADMIN
+  MODERATOR
+}
+
 model Role {
-  user_id Int    @id @unique
-  role    String @db.VarChar(50)
+  user_id Int      @id @unique
+  role    RoleType
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
