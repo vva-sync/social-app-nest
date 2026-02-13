@@ -6,6 +6,7 @@ import {
   Post,
   Res,
   UseInterceptors,
+  UsePipes,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { Public } from '../../decorators/public.decorator';
@@ -18,6 +19,8 @@ import {
 } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
+import { ZodValidationPipe } from '../../pipes/zod.validation.pipe';
+import { createUserSchema } from '../user/schemas/createUserSchema';
 
 @Public()
 @Controller('auth')
@@ -40,6 +43,7 @@ export class AuthController {
   }
 
   @UseInterceptors(TransactionInterceptor)
+  @UsePipes(new ZodValidationPipe(createUserSchema))
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signup(createUserDto);
